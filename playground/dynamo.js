@@ -69,26 +69,45 @@ let validateTable = (tableName, params) => {
     });
 };
 
+let validateTablePromise = (tableName, params) => {
+    let prom = dynamo.describeTable({TableName: tableName}).promise();
+    prom.then((tableData) => {
+        console.log("Table Data: ", tableData);
+    }, (error) => {
+        if (error && error.code === "ResourceNotFoundException") {
+            console.log(`Table ${tableName} does not exist, creating ....`);
+            return dynamo.createTable(params).promise();
+        }
+        throw error;
+    })
+        .then((tableCreateOut) => {
+            console.log(`Table ${tableName} created.`);
+        })
+        .catch((error) => {
+            console.log("Error describing table:", error);
+        });
+};
+
 validateTable("todo", toDoTableParams);
-validateTable("users", usersTableParams);
+validateTablePromise("users", usersTableParams);
 
 let itemId = uuid();
 console.log("Item Id: ", itemId);
 
 let item = {
-        Item: {
-            id: {
-                S: itemId
-            },
-            text: {
-                S: "Some things to do"
-            },
-            complete: {
-                BOOL: false
-            }
+    Item: {
+        id: {
+            S: itemId
         },
-        TableName: "todo"
-    };
+        text: {
+            S: "Some things to do"
+        },
+        complete: {
+            BOOL: false
+        }
+    },
+    TableName: "todo"
+};
 
 // dynamo.putItem(item, (error, result) => {
 //     if(error){
