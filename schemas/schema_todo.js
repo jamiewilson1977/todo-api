@@ -6,7 +6,8 @@ module.exports.todoSchema = {
     text: {
         type: String,
         minlength: 1,
-        trim: true
+        trim: true,
+        retuired: true
     },
     completed: {
         type: Boolean,

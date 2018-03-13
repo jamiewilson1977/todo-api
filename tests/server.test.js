@@ -10,7 +10,7 @@ describe("POST todos", () => {
     it("should create a new todo", (done) => { // Have to use "done" because it's asynchronous
         let text = "test todo text";
 
-        let postNewTodoStub = sinon.stub(dynamodb, "postNewTodo").callsFake( (text) => {
+        sinon.stub(dynamodb, "postNewTodo").callsFake( (text) => {
             return new Promise( (resolve, reject) =>{
                 return resolve({text});
             });
@@ -36,15 +36,15 @@ describe("POST todos", () => {
     it("should fail validation", (done) => { // Have to use "done" because it's asynchronous
         let text = "";
 
-        // let stub = sinon.stub(dynamodb, "postNewTodo").callsFake( (text) => {
-        //     return new Promise( (resolve, reject) =>{
-        //         return reject({
-        //             message: "Error writing to dynamoDB",
-        //             // error: new Error("Some error"),
-        //             params: {text}
-        //         });
-        //     });
-        // });
+        sinon.stub(dynamodb, "postNewTodo").callsFake( (text) => {
+            return new Promise( (resolve, reject) =>{
+                return reject({
+                    message: "Error writing to dynamoDB",
+                    // error: new Error("Some error"),
+                    params: {text}
+                });
+            });
+        });
 
         request(app)
             .post("/todos")
@@ -60,3 +60,39 @@ describe("POST todos", () => {
             });
     });
 }); // describe
+
+describe("GET todos", () => {
+
+    it("Should get all items", (done) => {
+        let results = [
+            {
+                "id": "1668797b-01e0-4a64-bace-6d67c55d32e1",
+                "completed": false,
+                "text": "Test from postman"
+            },
+            {
+                "id": "18e56a2e-51f6-438d-bb3b-1771b74cc154",
+                "completed": false
+            },
+            {
+                "id": "5af49a6a-ab18-467f-9ce6-5600a37b0efc",
+                "completed": false
+            }
+        ];
+
+        sinon.stub(dynamodb, "getAllTodos").callsFake( () => {
+            return new Promise( (resolve, reject) =>{
+                return resolve(results);
+            });
+        });
+
+        request(app)
+            .get("/todos")
+            .expect(200)
+            .expect( (response) => {
+                expect(response.body.length).toBe(3);
+            })
+            .end(done);
+    });
+
+}); // describe GET
