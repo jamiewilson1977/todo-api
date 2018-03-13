@@ -35,19 +35,31 @@ let User = dynamo.model("user", UserSchema.userSchema);
 
 let postNewTodo = (text) => {
     let todo = new Todo({
-       id: uuid(),
-       text: text
+        id: uuid(),
+        text: text
     });
 
-    return new Promise( (resolve, reject) => {
-       todo.save().then((doc) => {
-           resolve(doc);
+    return new Promise((resolve, reject) => {
+        todo.save().then((doc) => {
+            resolve(doc);
         }, (error) => {
-           reject({
-               message: "Error writing to dynamoDB",
-               error: error,
-               params: todo
-           });
+            reject({
+                message: "Error writing to dynamoDB",
+                error: error,
+                params: todo
+            });
+        });
+    });
+};
+
+let getAllTodos = () => {
+    return new Promise((resolve, reject) => {
+        Todo.scan({}, (e, items) => {
+            if (e) {
+                reject(e);
+                return;
+            }
+            resolve(items);
         });
     });
 };
@@ -68,5 +80,6 @@ let postNewTodo = (text) => {
 // };
 
 module.exports = {
-    postNewTodo
+    postNewTodo,
+    getAllTodos
 };

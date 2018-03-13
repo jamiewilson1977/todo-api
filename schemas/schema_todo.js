@@ -1,12 +1,10 @@
 module.exports.todoSchema = {
     id: {
         type: String,
-        hashKey: true,
-        minlength: 10
+        hashKey: true
     },
     text: {
         type: String,
-        required: true,
         minlength: 1,
         trim: true
     },

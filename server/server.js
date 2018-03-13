@@ -11,16 +11,15 @@ app.post("/todos", (req, res) => {
     dynamodb.postNewTodo(req.body.text).then((doc) => {
         res.send(doc);
     }, (error) => {
-        console.log(error);
         res.status(400).send(error);
     });
 });
 
 app.get("/todos", (req, res) => {
-    dynamodb.postNewTodo(req.body.text).then((doc) => {
+    dynamodb.getAllTodos().then((doc) => {
         res.send(doc);
     }, (error) => {
-        console.log(error);
+        console.error(error);
         res.status(400).send(error);
     });
 });
